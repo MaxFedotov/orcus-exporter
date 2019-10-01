@@ -1,0 +1,18 @@
+[Unit]
+Description=Orcus Prometheus Exporter
+Documentation=https://github.com/MaxFedotov/orcus
+After=syslog.target 
+After=network.target
+
+[Service]
+User=orcus_exporter
+Group=orcus_exporter
+Type=simple
+ExecStart=/usr/bin/orcus-exporter
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=always
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
