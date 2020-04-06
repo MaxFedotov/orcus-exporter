@@ -1,0 +1,59 @@
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    - go mod download
+snapshot:
+  name_template: "0.4"
+env_files:
+  github_token: ~/.github_token
+checksum:
+  algorithm: sha256
+builds:
+-
+  dir: .
+  main: exporter.go
+  goos:
+    - linux
+  goarch:
+    - amd64
+  hooks:
+    post: ./scripts/rpm_build.sh -v {{ .Version }}
+env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+archives:
+- 
+  id: systemd
+  replacements:
+    amd64: x86_64
+  files:
+    - etc/systemd/*
+  name_template: "{{ .ProjectName }}-{{ .Version }}.{{ .Arch }}"
+nfpms:
+-
+  id: systemd
+  vendor: GitHub
+  homepage: https://github.com/MaxFedotov/orcus-exporter
+  maintainer: MaxFedotov <m.a.fedotov@gmail.com>
+  description: "Orcus Prometheus Exporter"
+  file_name_template: "{{ .ProjectName }}-{{ .Version }}.{{ .Arch }}"
+  license: Apache 2.0
+  formats:
+    - deb
+  bindir: /usr/bin
+  empty_folders:
+    - /var/log/orcus-exporter
+  files:
+    "etc/systemd/orcus-exporter.service": "/etc/systemd/system/orcus-exporter.service"
+  scripts:
+    preinstall: "scripts/pre-install.sh"
+  overrides:
+    rpm:
+      replacements:
+        amd64: x86_64
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'

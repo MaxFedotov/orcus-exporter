@@ -1,3 +1,4 @@
+#!/bin/sh
 getent group orcus_exporter >/dev/null || groupadd -r orcus_exporter
 getent passwd orcus_exporter >/dev/null || \
     useradd -r -g orcus_exporter -s /sbin/nologin \

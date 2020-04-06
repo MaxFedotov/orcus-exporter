@@ -26,6 +26,7 @@ func NewOrchestratorCollector(orchestratorClient *client.OrchestratorClient, nam
 			"problems":         newGlobalMetric(namespace, "problems", "Count of MySQL clusters with problems"),
 			"last_failover_id": newGlobalMetric(namespace, "last_failover_id", "ID of last failover"),
 			"is_healthy":       newGlobalMetric(namespace, "is_healthy", "Orchestrator node health status"),
+			"failed_seeds":     newGlobalMetric(namespace, "failed_seeds", "Number of failed seeds"),
 		},
 		upMetric: newUpMetric(namespace),
 	}
@@ -74,4 +75,6 @@ func (c *OrchestratorCollector) Collect(ch chan<- prometheus.Metric) {
 		prometheus.CounterValue, float64(stats.LastFailoverID))
 	ch <- prometheus.MustNewConstMetric(c.metrics["is_healthy"],
 		prometheus.GaugeValue, boolToFloat64(stats.Status.Details.Healthy))
+	ch <- prometheus.MustNewConstMetric(c.metrics["failed_seeds"],
+		prometheus.CounterValue, float64(stats.FailedSeeds))
 }

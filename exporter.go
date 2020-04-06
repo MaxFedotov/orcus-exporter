@@ -20,7 +20,9 @@ import (
 )
 
 var (
-	Version, GitCommit string
+	version            = "dev"
+	commit             = "none"
+	date               = "unknown"
 	listenAddress      = flag.String("web.listen-address", ":9114", "Address to listen on for web interface")
 	metricsPath        = flag.String("web.metrics-path", "/metrics", "Path under which to expose metrics")
 	retries            = flag.Uint("config.retries", 0, "Number of retries the exporter will make on start in order to inialize collectors")
@@ -41,7 +43,7 @@ var (
 
 func main() {
 	flag.Parse()
-	log.Printf("Starting Orcus Prometheus Exporter Version=%v GitCommit=%v", Version, GitCommit)
+	log.Printf("Starting Orcus Prometheus Exporter Version=%v GitCommit=%v Date=%v", version, commit, date)
 
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGTERM)
@@ -57,8 +59,9 @@ func main() {
 			Name: "orcusexporter_build_info",
 			Help: "Exporter build information",
 			ConstLabels: prometheus.Labels{
-				"version":   Version,
-				"gitCommit": GitCommit,
+				"version":   version,
+				"gitCommit": commit,
+				"date":      date,
 			},
 		},
 	)

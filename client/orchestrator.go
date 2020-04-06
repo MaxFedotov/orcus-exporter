@@ -18,11 +18,17 @@ type OrchestratorFailovers struct {
 	ID int64
 }
 
+// OrchestratorFailedSeed represents failed seeds
+type OrchestratorFailedSeed struct {
+	SeedID int64
+}
+
 // OrchestratorMetrics represents Orchestrator metrics.
 type OrchestratorMetrics struct {
 	Status         HealthStatus
 	Problems       []interface{}
 	LastFailoverID int64
+	FailedSeeds    int
 }
 
 // HealthStatus represents status related metrics.
@@ -64,8 +70,37 @@ func (client *OrchestratorClient) GetMetrics() (*OrchestratorMetrics, error) {
 	if err != nil {
 		return nil, err
 	}
+	metrics.FailedSeeds, err = client.getFailedSeeds("/agents-failed-seeds")
+	if err != nil {
+		return nil, err
+	}
 	return &metrics, nil
 
+}
+
+func (client *OrchestratorClient) getFailedSeeds(endpoint string) (int, error) {
+	url := client.apiEndpoint + endpoint
+	resp, err := client.httpClient.Get(url)
+	failedSeeds := []OrchestratorFailedSeed{}
+	if err != nil {
+		return 0, fmt.Errorf("failed to get %v: %v", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("expected %v response, got %v", http.StatusOK, resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read the response body: %v", err)
+	}
+
+	err = json.Unmarshal(body, &failedSeeds)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse response body %q: %v", string(body), err)
+	}
+	return len(failedSeeds), nil
 }
 
 func (client *OrchestratorClient) getFailovers(endpoint string) (lastFailoverID int64, err error) {
