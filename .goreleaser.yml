@@ -8,6 +8,10 @@ env_files:
   github_token: ~/.github_token
 checksum:
   algorithm: sha256
+release:
+  extra_files: 
+    - glob: dist/*.rpm
+  draft: true
 builds:
 -
   dir: .
