@@ -66,7 +66,7 @@ func (client *OrchestratorClient) GetMetrics() (*OrchestratorMetrics, error) {
 	if err != nil {
 		return nil, err
 	}
-	metrics.LastFailoverID, err = client.getFailovers("/audit-failure-detection")
+	metrics.LastFailoverID, err = client.getFailovers("/audit-recovery")
 	if err != nil {
 		return nil, err
 	}
